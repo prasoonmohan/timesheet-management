@@ -17,8 +17,11 @@ export default function TimesheetFilters({
   onStartDateChange,
   onEndDateChange,
 }: TimesheetFiltersProps) {
+  const hasFilters = status || startDate || endDate;
+
   return (
-    <div className="mb-6 flex flex-wrap items-end gap-2.5">
+    <div className="mb-6 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-end">
+      {/* From */}
       <div className="flex flex-col gap-1">
         <label
           htmlFor="start-date"
@@ -34,10 +37,11 @@ export default function TimesheetFilters({
           onChange={(event) =>
             onStartDateChange(event.target.value)
           }
-      className="h-10 rounded-lg border border-[#D1D5DB] bg-white px-3 text-sm text-[#6B7280]outline-none transition focus:border-blue-500"
+          className="h-11 w-full rounded-lg border border-[#D1D5DB] bg-white px-3 text-sm text-[#6B7280] outline-none transition focus:border-[#1C64F2] sm:w-[185px]"
         />
       </div>
 
+      {/* To */}
       <div className="flex flex-col gap-1">
         <label
           htmlFor="end-date"
@@ -54,10 +58,11 @@ export default function TimesheetFilters({
           onChange={(event) =>
             onEndDateChange(event.target.value)
           }
-          className="h-10 rounded-lg border border-[#D1D5DB] bg-white px-3 text-sm text-[#6B7280]outline-none transition focus:border-blue-500"
+          className="h-10 w-full rounded-lg border border-[#D1D5DB] bg-white px-3 text-sm text-[#6B7280] outline-none transition focus:border-[#1C64F2] sm:w-[185px]"
         />
       </div>
 
+      {/* Status */}
       <div className="flex flex-col gap-1">
         <label
           htmlFor="status"
@@ -72,7 +77,7 @@ export default function TimesheetFilters({
           onChange={(event) =>
             onStatusChange(event.target.value)
           }
-          className="h-10.5 min-w-[140px] rounded-lg border border-[#D1D5DB] bg-white px-3 text-sm text-[#111928] outline-none transition focus:border-blue-500"
+          className="h-10 w-full rounded-lg border border-[#D1D5DB] bg-white px-3 text-sm text-[#111928] outline-none transition focus:border-[#1C64F2] sm:w-[150px]"
         >
           <option value="">All statuses</option>
           <option value="completed">Completed</option>
@@ -81,7 +86,8 @@ export default function TimesheetFilters({
         </select>
       </div>
 
-      {(status || startDate || endDate) && (
+      {/* Clear */}
+      {hasFilters && (
         <button
           type="button"
           onClick={() => {
@@ -89,7 +95,7 @@ export default function TimesheetFilters({
             onStartDateChange("");
             onEndDateChange("");
           }}
-          className="h-10 px-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="h-10 px-2 text-sm font-medium text-[#1C64F2] hover:text-[#1447E6]"
         >
           Clear filters
         </button>

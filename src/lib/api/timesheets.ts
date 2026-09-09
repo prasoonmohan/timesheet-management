@@ -1,4 +1,25 @@
-import type { TimesheetsResponse } from "@/types/timesheet";
+import type {
+  Timesheet,
+  TimesheetResponse,
+  TimesheetsResponse,
+} from "@/types/timesheet";
+
+async function parseResponse(response: Response) {
+  const result: unknown = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = typeof result === "object" && result && "error" in result && typeof result.error === "string" ? result.error : `Request failed (${response.status})`;
+    throw new Error(message);
+  }
+  return result;
+}
+
+async function request<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+  try { return await parseResponse(await fetch(input, init)) as T; }
+  catch (error) {
+    if (error instanceof TypeError) throw new Error("Unable to reach the server. Please try again.");
+    throw error instanceof Error ? error : new Error("Unable to reach the server. Please try again.");
+  }
+}
 
 interface GetTimesheetsParams {
   page?: number;
@@ -35,7 +56,7 @@ export async function getTimesheets(
 
   const query = searchParams.toString();
 
-  const response = await fetch(
+  return request<TimesheetsResponse>(
     `/api/timesheets${query ? `?${query}` : ""}`,
     {
       method: "GET",
@@ -43,11 +64,59 @@ export async function getTimesheets(
     }
   );
 
-  const result = await response.json();
+}
 
-  if (!response.ok) {
-    throw new Error(result.error || "Failed to fetch timesheets");
-  }
+export async function getTimesheet(id: string): Promise<TimesheetResponse> {
+  return request<TimesheetResponse>(`/api/timesheets/${id}`, {
+    method: "GET",
+    credentials: "include",
+  });
 
-  return result;
+}
+
+
+export async function updateTimesheet(
+  id: string,
+  entries: Timesheet["entries"]
+): Promise<TimesheetResponse> {
+  return request<TimesheetResponse>(
+    `/api/timesheets/${id}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        entries,
+      }),
+    }
+  );
+
+}
+
+interface CreateTimesheetResponse {
+  success: boolean;
+  data: Timesheet;
+  error?: string;
+}
+
+export async function createTimesheet(
+  id: string,
+  entries: Timesheet["entries"]
+): Promise<CreateTimesheetResponse> {
+  return request<CreateTimesheetResponse>(
+    `/api/timesheets/${id}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        entries,
+      }),
+    }
+  );
+
 }

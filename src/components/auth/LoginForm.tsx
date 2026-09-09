@@ -24,6 +24,11 @@ export function LoginForm() {
       return;
     }
 
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (!password.trim()) {
       setError("Please enter your password.");
       return;

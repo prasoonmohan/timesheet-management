@@ -1,4 +1,6 @@
 import type { Timesheet } from "@/types/timesheet";
+import Link from "next/link";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 interface TimesheetTableProps {
   timesheets: Timesheet[];
@@ -12,11 +14,11 @@ function formatDateRange(startDate: string, endDate: string) {
   const endDay = end.getDate();
 
   const startMonth = start.toLocaleString("en-US", {
-    month: "short",
+    month: "long",
   });
 
   const endMonth = end.toLocaleString("en-US", {
-    month: "short",
+    month: "long",
   });
 
   const year = end.getFullYear();
@@ -28,99 +30,92 @@ function formatDateRange(startDate: string, endDate: string) {
   return `${startDay} ${startMonth} - ${endDay} ${endMonth}, ${year}`;
 }
 
-function getStatusLabel(status: Timesheet["status"]) {
-  switch (status) {
-    case "completed":
-      return "COMPLETED";
-
-    case "incomplete":
-      return "INCOMPLETE";
-
-    case "missing":
-      return "MISSING";
-  }
-}
-
-function getActionLabel(status: Timesheet["status"]) {
-  switch (status) {
-    case "completed":
-      return "View";
-
-    case "incomplete":
-      return "Update";
-
-    case "missing":
-      return "Create";
-  }
-}
-
 export default function TimesheetTable({
   timesheets,
 }: TimesheetTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[650px] border-collapse border border-gray-200">
+      <table className="w-full min-w-[650px] border-collapse border border-[#E5E7EB]">
         <thead>
-          <tr className="border-b border-gray-200 bg-[#F9FAFB]">
-            <th className="px-2.5 py-4 text-left text-[12px] font-semibold uppercase text-[#6B7280]">
+          <tr className="h-[54px] border-b border-[#E5E7EB] bg-[#F9FAFB]">
+            <th className="w-[160px] px-3 text-left text-[12px] font-semibold uppercase tracking-normal text-[#6B7280]">
               Week #
             </th>
 
-            <th className="px-2.5 py-4 text-left text-[12px] font-semibold uppercase text-[#6B7280]">
+            <th className="px-3 text-left text-[12px] font-semibold uppercase tracking-normal text-[#6B7280]">
               Date
             </th>
 
-            <th className="px-2.5 py-4 text-left text-[12px] font-semibold uppercase text-[#6B7280]">
+            <th className="w-[180px] px-3 text-left text-[12px] font-semibold uppercase tracking-normal text-[#6B7280]">
               Status
             </th>
 
-            <th className="px-2.5 py-4 text-center text-[12px] font-semibold uppercase text-[#6B7280]">
+            <th className="w-[160px] px-3 text-center text-[12px] font-semibold uppercase tracking-normal text-[#6B7280]">
               Actions
             </th>
           </tr>
         </thead>
 
         <tbody>
-          {timesheets.map((timesheet) => (
+          {timesheets.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="px-3 py-12 text-center">
+                <p className="text-sm font-medium text-[#111928]">
+                  No timesheets found
+                </p>
+                <p className="mt-1 text-sm text-[#6B7280]">
+                  Try adjusting your filters to see more results.
+                </p>
+              </td>
+            </tr>
+          ) : (
+            timesheets.map((timesheet) => (
             <tr
               key={timesheet.id}
-              className="border-b border-gray-200 last:border-b-0"
+              className="h-[64px] border-b border-[#E5E7EB] last:border-b-0"
             >
-              <td className="p-4 text-sm text-[#111928]">
+              <td className="px-3 text-sm font-normal text-[#111928]">
                 {timesheet.weekNumber}
               </td>
 
-              <td className="p-4 text-sm text-[#6B7280]">
+              <td className="px-3 text-sm font-normal text-[#6B7280]">
                 {formatDateRange(
                   timesheet.startDate,
                   timesheet.endDate
                 )}
               </td>
 
-              <td className="p-4">
-                <span
-                  className={`inline-flex rounded-md px-2.5 py-1 text-[12px] font-medium tracking-wide ${
-                    timesheet.status === "completed"
-                      ? "bg-[#DEF7EC] text-[#03543F]"
-                      : timesheet.status === "incomplete"
-                        ? "bg-[#FDF6B2] text-[#723B13]"
-                        : "bg-[#FCE8F3] text-[#99154B]"
-                  }`}
-                >
-                  {getStatusLabel(timesheet.status)}
-                </span>
+              <td className="px-3">
+                <StatusBadge status={timesheet.status} />
               </td>
 
-              <td className="p-4 text-center">
-                <button
-                  type="button"
-                  className="text-[16px] font-normal text-[#1C64F2] transition hover:text-[#1C64F2]/80"
-                >
-                  {getActionLabel(timesheet.status)}
-                </button>
+              <td className="p-3 text-center">
+  {timesheet.status === "completed" ? (
+    <Link
+      href={`/dashboard/timesheets/${timesheet.id}`}
+      className="text-[16px] font-normal text-[#1C64F2] transition hover:text-[#1C64F2]/80"
+    >
+      View
+    </Link>
+  ) : timesheet.status === "incomplete" ? (
+    <Link
+      href={`/dashboard/timesheets/${timesheet.id}/edit`}
+      className="text-[16px] font-normal text-[#1C64F2] transition hover:text-[#1C64F2]/80"
+    >
+      Update
+    </Link>
+  ) : (
+  <Link
+  href={`/dashboard/timesheets/${timesheet.id}/create`}
+  className="text-[16px] font-normal text-[#1C64F2] transition hover:text-[#1C64F2]/80"
+>
+  Create
+</Link>
+  )}
               </td>
             </tr>
-          ))}
+            ))
+          )}
         </tbody>
       </table>
     </div>
